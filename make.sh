@@ -1,43 +1,45 @@
 #!/usr/bin/env sh
 
+set -eu
+
 prefix=$(pwd)/dest
 
-#tar xf npth-*.tar.bz2
+tar xf npth-*.tar.bz2
 (
   cd npth-* || exit
   ./configure --prefix="$prefix"
   make -j 8
   make install
 )
-#tar xf libgpg-error-*.tar.bz2
+tar xf libgpg-error-*.tar.bz2
 (
   cd libgpg-error-* || exit
   ./configure --prefix="$prefix"
   make -j 8
   make install
 )
-#tar xf libgcrypt-*.tar.bz2
+tar xf libgcrypt-*.tar.bz2
 (
   cd libgcrypt-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
   make -j 8
   make install
 )
-#tar xf libksba-*.tar.bz2
+tar xf libksba-*.tar.bz2
 (
   cd libksba-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
   make -j 8
   make install
 )
-#tar xf libassuan-*.tar.bz2
+tar xf libassuan-*.tar.bz2
 (
   cd libassuan-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
   make -j 8
   make install
 )
-#tar xf gnupg-*.tar.bz2
+tar xf gnupg-*.tar.bz2
 (
   cd gnupg-* || exit
   ./configure \
