@@ -41,17 +41,6 @@ tar xf libassuan-*.tar.bz2
   make -j 8
   make install
 )
-tar xf pinentry-*.tar.bz2
-(
-  cd pinentry-* || exit
-  ./configure \
-		--prefix="$prefix" \
-    --with-libgpg-error-prefix="$prefix" \
-    --with-libassuan-prefix="$prefix" \
-		;
-  make -j 8
-  make install
-)
 tar xf gnupg-*.tar.bz2
 (
   cd gnupg-* || exit
