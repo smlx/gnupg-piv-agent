@@ -6,7 +6,7 @@
  
 +	fprintf(stderr, "md_write input (%zu): ", inlen);
 +	for(size_t i = 0; i < inlen; i++)
-+		fprintf(stderr, "%02X", *((char*)inbuf+i));
++		fprintf(stderr, "%02hhX ", *((char*)inbuf+i));
 +	fprintf(stderr, "%s", "\n");
 +
    if (a->ctx->debug)
