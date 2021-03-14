@@ -20,6 +20,7 @@ tar xf libgpg-error-*.tar.bz2
 )
 tar xf libgcrypt-*.tar.bz2
 patch -p 1 < md.patch
+patch -p 1 < ecc.patch
 (
   cd libgcrypt-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
@@ -37,6 +38,17 @@ tar xf libassuan-*.tar.bz2
 (
   cd libassuan-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
+  make -j 8
+  make install
+)
+tar xf pinentry-*.tar.bz2
+(
+  cd pinentry-* || exit
+  ./configure \
+		--prefix="$prefix" \
+    --with-libgpg-error-prefix="$prefix" \
+    --with-libassuan-prefix="$prefix" \
+		;
   make -j 8
   make install
 )

@@ -1,7 +1,8 @@
 FROM alpine:3.13
 
 RUN apk add --no-cache \
-      build-base
+      build-base \
+      ncurses-dev
 
 COPY . /app
 
