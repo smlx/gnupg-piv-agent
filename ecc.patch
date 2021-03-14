@@ -4,7 +4,7 @@
    const unsigned char *raw;
    unsigned int n;
  
-+ 	fprintf(stderr, "%s", "compute_keygrip entry");
++ 	fprintf(stderr, "%s\n", "compute_keygrip entry");
 +
    /* Clear the values first.  */
    for (idx=0; idx < N_COMPONENTS; idx++)
@@ -13,7 +13,7 @@
      }
  
   leave:
-+ 	fprintf(stderr, "%s", "compute_keygrip exit");
++ 	fprintf(stderr, "%s\n", "compute_keygrip exit");
    xfree (curvename);
    sexp_release (l1);
    for (idx = 0; idx < N_COMPONENTS; idx++)
