@@ -13,6 +13,6 @@ COPY . /app
 RUN cd /app && ./make.sh
 
 # RUN /app/dest/bin/gpg --quick-gen-key --passphrase '' --pinentry-mode loopback foo@example.com nistp256
-RUN /app/dest/bin/gpg --quick-gen-key --passphrase '' --pinentry-mode loopback foo@example.com rsa \
+RUN /app/dest/bin/gpg --quick-gen-key --passphrase '' --pinentry-mode loopback --batch foo@example.com rsa sign,encrypt \
       && echo bar > /tmp/bar \
-      && /app/dest/bin/gpg gpg -er foo@example.com /tmp/bar
+      && /app/dest/bin/gpg -e -r foo@example.com /tmp/bar

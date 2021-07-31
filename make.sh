@@ -19,8 +19,6 @@ tar xf libgpg-error-*.tar.bz2
   make install
 )
 tar xf libgcrypt-*.tar.bz2
-patch -p 1 < md.patch
-patch -p 1 < ecc.patch
 (
   cd libgcrypt-* || exit
   ./configure --prefix="$prefix" --with-libgpg-error-prefix="$prefix"
