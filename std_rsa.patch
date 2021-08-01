@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2019-06-23 23:35:08.000000000 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-01 23:35:26.698651146 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-01 23:44:47.959239000 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -18,7 +18,17 @@
  }
  
  
-@@ -1401,13 +1392,7 @@
+@@ -1365,8 +1356,7 @@
+   rc = sexp_extract_param (l1, NULL, "a", &data, NULL);
+   if (rc)
+     goto leave;
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_decrypt data", data);
++	log_printmpi ("rsa_decrypt data", data);
+   if (mpi_is_opaque (data))
+     {
+       rc = GPG_ERR_INV_DATA;
+@@ -1401,16 +1391,9 @@
    /* Allocate MPI for the plaintext.  */
    plain = mpi_snew (ctx.nbits);
  
@@ -31,5 +41,9 @@
 -    secret_blinded (plain, data, &sk, ctx.nbits);
 +	secret (plain, data, &sk);
  
-   if (DBG_CIPHER)
-     log_printmpi ("rsa_decrypt  res", plain);
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_decrypt  res", plain);
++	log_printmpi ("rsa_decrypt  res", plain);
+ 
+   /* Reverse the encoding and build the s-expression.  */
+   switch (ctx.encoding)
