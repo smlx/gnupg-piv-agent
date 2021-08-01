@@ -6,6 +6,7 @@ RUN apk add --no-cache \
       ncurses-dev \
       pinentry \
       py3-pygments \
+      screen \
       && wget -P ~ https://git.io/.gdbinit
 
 COPY . /app

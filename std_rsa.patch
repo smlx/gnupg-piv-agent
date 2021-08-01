@@ -1,0 +1,35 @@
+--- ./libgcrypt-1.9.2/cipher/rsa.c	2019-06-23 23:35:08.000000000 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-01 23:35:26.698651146 +0800
+@@ -1076,16 +1076,7 @@
+ {
+   /* Remove superfluous leading zeroes from INPUT.  */
+   mpi_normalize (input);
+-
+-  if (!skey->p || !skey->q || !skey->u)
+-    {
+-      secret_core_std (output, input, skey->d, skey->n);
+-    }
+-  else
+-    {
+-      secret_core_crt (output, input, skey->d, mpi_get_nlimbs (skey->n),
+-                       skey->p, skey->q, skey->u);
+-    }
++  secret_core_std (output, input, skey->d, skey->n);
+ }
+ 
+ 
+@@ -1401,13 +1392,7 @@
+   /* Allocate MPI for the plaintext.  */
+   plain = mpi_snew (ctx.nbits);
+ 
+-  /* We use blinding by default to mitigate timing attacks which can
+-     be practically mounted over the network as shown by Brumley and
+-     Boney in 2003.  */
+-  if ((ctx.flags & PUBKEY_FLAG_NO_BLINDING))
+-    secret (plain, data, &sk);
+-  else
+-    secret_blinded (plain, data, &sk, ctx.nbits);
++	secret (plain, data, &sk);
+ 
+   if (DBG_CIPHER)
+     log_printmpi ("rsa_decrypt  res", plain);
