@@ -1,5 +1,5 @@
---- ./libgcrypt-1.9.2/cipher/rsa.c	2019-06-23 23:35:08.000000000 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-01 23:44:47.959239000 +0800
+--- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-02 12:43:46.316617044 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -28,7 +28,30 @@
    if (mpi_is_opaque (data))
      {
        rc = GPG_ERR_INV_DATA;
-@@ -1401,16 +1391,9 @@
+@@ -1392,6 +1382,22 @@
+         }
+     }
+ 
++	unsigned char buffer[401] = {0};
++	gcry_err_code_t err;
++	err = gcry_mpi_print(GCRYMPI_FMT_STD, buffer, sizeof(buffer), NULL, data);
++	if (err != 0){
++		printf("error: %d\n", err);
++		return -1;
++	}
++	printf("The ciphertext is: %s\n",buffer);
++
++	err = gcry_mpi_print(GCRYMPI_FMT_HEX, buffer, sizeof(buffer), NULL, data);
++	if (err != 0){
++		printf("error: %d\n", err);
++		return -1;
++	}
++	printf("The ciphertext hex encoded: %s\n", buffer);
++
+   /* Better make sure that there are no superfluous leading zeroes in
+      the input and it has not been "padded" using multiples of N.
+      This mitigates side-channel attacks (CVE-2013-4576).  */
+@@ -1401,16 +1407,9 @@
    /* Allocate MPI for the plaintext.  */
    plain = mpi_snew (ctx.nbits);
  
