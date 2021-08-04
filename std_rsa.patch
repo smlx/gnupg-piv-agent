@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:15:34.495736819 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:18:41.052157536 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -98,7 +98,7 @@
      }
  
 +	size_t sexp_len, i;
-+	sexp_len = _gcry_sexp_sprint (r_plain, GCRYSEXP_FMT_CANON, buffer, 4096);
++	sexp_len = _gcry_sexp_sprint (*r_plain, GCRYSEXP_FMT_CANON, buffer, 4096);
 +	buffer[sexp_len] = '\0';
 +	printf("response sexp");
 +  for(i = 0; i < sexp_len; ++i) {
