@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-02 12:43:46.316617044 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:15:34.495736819 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -28,30 +28,31 @@
    if (mpi_is_opaque (data))
      {
        rc = GPG_ERR_INV_DATA;
-@@ -1392,6 +1382,22 @@
+@@ -1392,6 +1382,23 @@
          }
      }
  
-+	unsigned char buffer[401] = {0};
++	unsigned char buffer[4096] = {0};
 +	gcry_err_code_t err;
-+	err = gcry_mpi_print(GCRYMPI_FMT_STD, buffer, sizeof(buffer), NULL, data);
++	err = _gcry_mpi_print(GCRYMPI_FMT_USG, buffer, sizeof(buffer), NULL, data);
 +	if (err != 0){
 +		printf("error: %d\n", err);
 +		return -1;
 +	}
 +	printf("The ciphertext is: %s\n",buffer);
 +
-+	err = gcry_mpi_print(GCRYMPI_FMT_HEX, buffer, sizeof(buffer), NULL, data);
++	err = _gcry_mpi_print(GCRYMPI_FMT_HEX, buffer, sizeof(buffer), NULL, data);
 +	if (err != 0){
 +		printf("error: %d\n", err);
 +		return -1;
 +	}
 +	printf("The ciphertext hex encoded: %s\n", buffer);
++	log_printmpi ("log_printmpi ciphertext", data);
 +
    /* Better make sure that there are no superfluous leading zeroes in
       the input and it has not been "padded" using multiples of N.
       This mitigates side-channel attacks (CVE-2013-4576).  */
-@@ -1401,16 +1407,9 @@
+@@ -1401,21 +1408,15 @@
    /* Allocate MPI for the plaintext.  */
    plain = mpi_snew (ctx.nbits);
  
@@ -66,7 +67,44 @@
  
 -  if (DBG_CIPHER)
 -    log_printmpi ("rsa_decrypt  res", plain);
-+	log_printmpi ("rsa_decrypt  res", plain);
++	log_printmpi ("rsa_decrypt  plaintext", plain);
  
    /* Reverse the encoding and build the s-expression.  */
    switch (ctx.encoding)
+     {
+     case PUBKEY_ENC_PKCS1:
++			printf("PUBKEY_ENC_PKCS1");
+       rc = _gcry_rsa_pkcs1_decode_for_enc (&unpad, &unpadlen, ctx.nbits, plain);
+       mpi_free (plain);
+       plain = NULL;
+@@ -1424,6 +1425,7 @@
+       break;
+ 
+     case PUBKEY_ENC_OAEP:
++			printf("PUBKEY_ENC_OAEP");
+       rc = _gcry_rsa_oaep_decode (&unpad, &unpadlen,
+                                   ctx.nbits, ctx.hash_algo,
+                                   plain, ctx.label, ctx.labellen);
+@@ -1434,6 +1436,7 @@
+       break;
+ 
+     default:
++			printf("DEFAULT");
+       /* Raw format.  For backward compatibility we need to assume a
+          signed mpi by using the sexp format string "%m".  */
+       rc = sexp_build (r_plain, NULL,
+@@ -1442,6 +1445,14 @@
+       break;
+     }
+ 
++	size_t sexp_len, i;
++	sexp_len = _gcry_sexp_sprint (r_plain, GCRYSEXP_FMT_CANON, buffer, 4096);
++	buffer[sexp_len] = '\0';
++	printf("response sexp");
++  for(i = 0; i < sexp_len; ++i) {
++    fprintf(stdout, "x%02X%s", buffer[i], ( i + 1 ) % 16 == 0 ? "\n" : " " );
++	}
++
+  leave:
+   xfree (unpad);
+   _gcry_mpi_release (plain);
