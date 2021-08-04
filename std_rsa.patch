@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:18:41.052157536 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:29:52.219473826 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -73,7 +73,7 @@
    switch (ctx.encoding)
      {
      case PUBKEY_ENC_PKCS1:
-+			printf("PUBKEY_ENC_PKCS1");
++			printf("PUBKEY_ENC_PKCS1\n");
        rc = _gcry_rsa_pkcs1_decode_for_enc (&unpad, &unpadlen, ctx.nbits, plain);
        mpi_free (plain);
        plain = NULL;
@@ -81,7 +81,7 @@
        break;
  
      case PUBKEY_ENC_OAEP:
-+			printf("PUBKEY_ENC_OAEP");
++			printf("PUBKEY_ENC_OAEP\n");
        rc = _gcry_rsa_oaep_decode (&unpad, &unpadlen,
                                    ctx.nbits, ctx.hash_algo,
                                    plain, ctx.label, ctx.labellen);
@@ -89,7 +89,7 @@
        break;
  
      default:
-+			printf("DEFAULT");
++			printf("DEFAULT\n");
        /* Raw format.  For backward compatibility we need to assume a
           signed mpi by using the sexp format string "%m".  */
        rc = sexp_build (r_plain, NULL,
@@ -100,9 +100,9 @@
 +	size_t sexp_len, i;
 +	sexp_len = _gcry_sexp_sprint (*r_plain, GCRYSEXP_FMT_CANON, buffer, 4096);
 +	buffer[sexp_len] = '\0';
-+	printf("response sexp");
++	printf("response sexp\n");
 +  for(i = 0; i < sexp_len; ++i) {
-+    fprintf(stdout, "x%02X%s", buffer[i], ( i + 1 ) % 16 == 0 ? "\n" : " " );
++    fprintf(stdout, "%02X%s", buffer[i], ( i + 1 ) % 16 == 0 ? "\n" : "" );
 +	}
 +
   leave:
