@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-04 21:29:52.219473826 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-07 21:25:36.279385839 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -14,97 +14,63 @@
 -      secret_core_crt (output, input, skey->d, mpi_get_nlimbs (skey->n),
 -                       skey->p, skey->q, skey->u);
 -    }
-+  secret_core_std (output, input, skey->d, skey->n);
++	secret_core_std (output, input, skey->d, skey->n);
  }
  
  
-@@ -1365,8 +1356,7 @@
-   rc = sexp_extract_param (l1, NULL, "a", &data, NULL);
+@@ -1478,8 +1469,10 @@
+   rc = _gcry_pk_util_data_to_mpi (s_data, &data, &ctx);
    if (rc)
      goto leave;
 -  if (DBG_CIPHER)
--    log_printmpi ("rsa_decrypt data", data);
-+	log_printmpi ("rsa_decrypt data", data);
+-    log_printmpi ("rsa_sign   data", data);
++
++	_gcry_sexp_dump(s_data);
++  log_printmpi ("rsa_sign   data", data);
++
    if (mpi_is_opaque (data))
      {
        rc = GPG_ERR_INV_DATA;
-@@ -1392,6 +1382,23 @@
-         }
-     }
- 
-+	unsigned char buffer[4096] = {0};
-+	gcry_err_code_t err;
-+	err = _gcry_mpi_print(GCRYMPI_FMT_USG, buffer, sizeof(buffer), NULL, data);
-+	if (err != 0){
-+		printf("error: %d\n", err);
-+		return -1;
-+	}
-+	printf("The ciphertext is: %s\n",buffer);
-+
-+	err = _gcry_mpi_print(GCRYMPI_FMT_HEX, buffer, sizeof(buffer), NULL, data);
-+	if (err != 0){
-+		printf("error: %d\n", err);
-+		return -1;
-+	}
-+	printf("The ciphertext hex encoded: %s\n", buffer);
-+	log_printmpi ("log_printmpi ciphertext", data);
-+
-   /* Better make sure that there are no superfluous leading zeroes in
-      the input and it has not been "padded" using multiples of N.
-      This mitigates side-channel attacks (CVE-2013-4576).  */
-@@ -1401,21 +1408,15 @@
-   /* Allocate MPI for the plaintext.  */
-   plain = mpi_snew (ctx.nbits);
- 
--  /* We use blinding by default to mitigate timing attacks which can
--     be practically mounted over the network as shown by Brumley and
--     Boney in 2003.  */
--  if ((ctx.flags & PUBKEY_FLAG_NO_BLINDING))
--    secret (plain, data, &sk);
--  else
--    secret_blinded (plain, data, &sk, ctx.nbits);
-+	secret (plain, data, &sk);
- 
+@@ -1492,27 +1485,16 @@
+                            NULL);
+   if (rc)
+     goto leave;
 -  if (DBG_CIPHER)
--    log_printmpi ("rsa_decrypt  res", plain);
-+	log_printmpi ("rsa_decrypt  plaintext", plain);
- 
-   /* Reverse the encoding and build the s-expression.  */
-   switch (ctx.encoding)
-     {
-     case PUBKEY_ENC_PKCS1:
-+			printf("PUBKEY_ENC_PKCS1\n");
-       rc = _gcry_rsa_pkcs1_decode_for_enc (&unpad, &unpadlen, ctx.nbits, plain);
-       mpi_free (plain);
-       plain = NULL;
-@@ -1424,6 +1425,7 @@
-       break;
- 
-     case PUBKEY_ENC_OAEP:
-+			printf("PUBKEY_ENC_OAEP\n");
-       rc = _gcry_rsa_oaep_decode (&unpad, &unpadlen,
-                                   ctx.nbits, ctx.hash_algo,
-                                   plain, ctx.label, ctx.labellen);
-@@ -1434,6 +1436,7 @@
-       break;
- 
-     default:
-+			printf("DEFAULT\n");
-       /* Raw format.  For backward compatibility we need to assume a
-          signed mpi by using the sexp format string "%m".  */
-       rc = sexp_build (r_plain, NULL,
-@@ -1442,6 +1445,14 @@
-       break;
-     }
- 
-+	size_t sexp_len, i;
-+	sexp_len = _gcry_sexp_sprint (*r_plain, GCRYSEXP_FMT_CANON, buffer, 4096);
-+	buffer[sexp_len] = '\0';
-+	printf("response sexp\n");
-+  for(i = 0; i < sexp_len; ++i) {
-+    fprintf(stdout, "%02X%s", buffer[i], ( i + 1 ) % 16 == 0 ? "\n" : "" );
-+	}
+-    {
+-      log_printmpi ("rsa_sign      n", sk.n);
+-      log_printmpi ("rsa_sign      e", sk.e);
+-      if (!fips_mode ())
+-        {
+-          log_printmpi ("rsa_sign      d", sk.d);
+-          log_printmpi ("rsa_sign      p", sk.p);
+-          log_printmpi ("rsa_sign      q", sk.q);
+-          log_printmpi ("rsa_sign      u", sk.u);
+-        }
+-    }
 +
++	log_printmpi ("rsa_sign      n", sk.n);
++	log_printmpi ("rsa_sign      e", sk.e);
++	log_printmpi ("rsa_sign      d", sk.d);
+ 
+   /* Do RSA computation.  */
+   sig = mpi_new (0);
+-  if ((ctx.flags & PUBKEY_FLAG_NO_BLINDING))
+-    secret (sig, data, &sk);
+-  else
+-    secret_blinded (sig, data, &sk, ctx.nbits);
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_sign    res", sig);
++	secret (sig, data, &sk);
++
++	log_printmpi ("rsa_sign    res", sig);
+ 
+   /* Check that the created signature is good.  This detects a failure
+      of the CRT algorithm  (Lenstra's attack on RSA's use of the CRT).  */
+@@ -1544,6 +1526,7 @@
+   else
+     rc = sexp_build (r_sig, NULL, "(sig-val(rsa(s%M)))", sig);
+ 
++	_gcry_sexp_dump(*r_sig);
+ 
   leave:
-   xfree (unpad);
-   _gcry_mpi_release (plain);
+   _gcry_mpi_release (result);
