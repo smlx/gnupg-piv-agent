@@ -1,5 +1,5 @@
 --- ./libgcrypt-1.9.2/cipher/rsa.c	2021-08-02 12:38:29.921489018 +0800
-+++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-07 21:25:36.279385839 +0800
++++ ./libgcrypt-1.9.2/cipher/rsa2.c	2021-08-07 21:28:36.759465341 +0800
 @@ -1076,16 +1076,7 @@
  {
    /* Remove superfluous leading zeroes from INPUT.  */
@@ -74,3 +74,49 @@
  
   leave:
    _gcry_mpi_release (result);
+@@ -1580,8 +1563,10 @@
+   rc = _gcry_pk_util_data_to_mpi (s_data, &data, &ctx);
+   if (rc)
+     goto leave;
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_verify data", data);
++
++	_gcry_sexp_dump(s_data);
++	log_printmpi ("rsa_verify data", data);
++
+   if (mpi_is_opaque (data))
+     {
+       rc = GPG_ERR_INV_DATA;
+@@ -1595,24 +1580,23 @@
+   rc = sexp_extract_param (l1, NULL, "s", &sig, NULL);
+   if (rc)
+     goto leave;
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_verify  sig", sig);
++
++	log_printmpi ("rsa_verify  sig", sig);
+ 
+   /* Extract the key.  */
+   rc = sexp_extract_param (keyparms, NULL, "ne", &pk.n, &pk.e, NULL);
+   if (rc)
+     goto leave;
+-  if (DBG_CIPHER)
+-    {
+-      log_printmpi ("rsa_verify    n", pk.n);
+-      log_printmpi ("rsa_verify    e", pk.e);
+-    }
++
++	log_printmpi ("rsa_verify    n", pk.n);
++	log_printmpi ("rsa_verify    e", pk.e);
+ 
+   /* Do RSA computation and compare.  */
+   result = mpi_new (0);
+   public (result, sig, &pk);
+-  if (DBG_CIPHER)
+-    log_printmpi ("rsa_verify  cmp", result);
++
++	log_printmpi ("rsa_verify  cmp", result);
++
+   if (ctx.verify_cmp)
+     rc = ctx.verify_cmp (&ctx, result);
+   else
