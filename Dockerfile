@@ -7,6 +7,7 @@ RUN apk add --no-cache \
       pinentry \
       py3-pygments \
       screen \
+      strace \
       && wget -P ~ https://git.io/.gdbinit
 
 COPY . /app
