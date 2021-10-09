@@ -1,0 +1,10 @@
+--- ./gnupg-2.3.2/common/openpgp-oid.c	2021-03-22 17:05:01.000000000 +0800
++++ ./gnupg-2.3.2/common/openpgp-oid2.c	2021-10-09 23:10:18.154872375 +0800
+@@ -581,6 +581,7 @@
+     case GCRY_PK_EDDSA:  return PUBKEY_ALGO_EDDSA;
+     case GCRY_PK_ECDSA:  return PUBKEY_ALGO_ECDSA;
+     case GCRY_PK_ECDH:   return PUBKEY_ALGO_ECDH;
++    case GCRY_PK_ECC:    return PUBKEY_ALGO_ECDSA;
+     default: return algo < 110 ? (pubkey_algo_t)algo : 0;
+     }
+ }
