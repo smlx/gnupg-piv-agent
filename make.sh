@@ -41,7 +41,7 @@ tar xf libassuan-*.tar.bz2
   make install
 )
 tar xf gnupg-*.tar.bz2
-patch -p 1 < gnupg_misc.patch
+#patch -p 1 < gnupg_misc.patch
 (
   cd gnupg-* || exit
   ./configure \
