@@ -1,0 +1,62 @@
+name: Release
+on:
+  push:
+    branches:
+    - main
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    outputs:
+      new-tag: ${{ steps.bump-tag.outputs.new }}
+      new-tag-version: ${{ steps.bump-tag.outputs.new_tag_version }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Configure Git
+      run: |
+        git config --global user.name "$GITHUB_ACTOR"
+        git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+    - name: Install ccv
+      run: >
+        curl -sSL https://github.com/smlx/ccv/releases/download/v0.3.2/ccv_0.3.2_linux_amd64.tar.gz
+        | sudo tar -xz -C /usr/local/bin ccv
+    - name: Bump tag if necessary
+      id: bump-tag
+      run: |
+        if [ -z $(git tag -l $(ccv)) ]; then
+          git tag $(ccv)
+          git push --tags
+          echo "::set-output name=new::true"
+          echo "::set-output name=new_tag_version::$(git tag --points-at HEAD)"
+        fi
+  releaseimage:
+    needs:
+    - tag
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Login to GHCR
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Docker metadata
+      # this id is namespaced per matrix run
+      id: docker_metadata
+      uses: docker/metadata-action@v3
+      with:
+        images: ghcr.io/smlx/gnupg-piv-agent
+        tags: |
+          ${{ needs.tag.outputs.new-tag-version }}
+          latest
+    - name: Build and push ${{ matrix.binary }} container image
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ${{ steps.docker_metadata.outputs.tags }}
+        labels: ${{ steps.docker_metadata.outputs.labels }}
