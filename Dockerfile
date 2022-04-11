@@ -4,6 +4,7 @@ RUN apk add --no-cache \
       build-base \
       gdb \
       sqlite-dev \
+      bzip2-dev \
     && adduser -Dg gpguser gpguser
 
 COPY . /build
