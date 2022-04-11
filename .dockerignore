@@ -1,4 +1,8 @@
 /.git
-/dest
+/.github
+/.goreleaser.yml
 /Dockerfile
+/Makefile
+/commitlint
+/dest
 /src
