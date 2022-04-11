@@ -1,20 +1,12 @@
-FROM alpine:3.14
+FROM alpine:3.15
 
 RUN apk add --no-cache \
       build-base \
       gdb \
-      ncurses-dev \
-      pinentry \
-      py3-pygments \
-      screen \
-      strace \
-      && wget -P ~ https://git.io/.gdbinit
+    && adduser -Dg gpguser gpguser
 
-COPY . /app
+COPY . /build
 
-RUN cd /app && ./make.sh
+RUN cd /build && ./make.sh
 
-# RUN /app/dest/bin/gpg --quick-gen-key --passphrase '' --pinentry-mode loopback foo@example.com nistp256
-RUN /app/dest/bin/gpg --quick-gen-key --passphrase '' --pinentry-mode loopback --batch foo@example.com rsa sign,encrypt \
-      && echo bar > /tmp/bar \
-      && /app/dest/bin/gpg -e -r foo@example.com /tmp/bar
+USER gpguser
